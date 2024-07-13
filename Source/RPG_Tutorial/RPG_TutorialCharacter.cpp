@@ -142,3 +142,12 @@ void ARPG_TutorialCharacter::Crouch(const FInputActionValue&)
 	}
 	GetCameraBoom()->TargetArmLength = IsCrouched ? 550 : 400;
 }
+
+void ARPG_TutorialCharacter::Jump()
+{
+	if (IsCrouched) {
+		Crouch(FInputActionValue());
+	}
+
+	ACharacter::Jump();
+}

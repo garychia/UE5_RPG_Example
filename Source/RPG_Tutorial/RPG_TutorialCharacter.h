@@ -66,6 +66,8 @@ protected:
 
 	/** Called for crouching input */
 	void Crouch(const FInputActionValue&);
+
+	void Jump() override;
 			
 
 protected:
