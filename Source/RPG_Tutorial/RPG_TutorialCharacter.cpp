@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "PlayerHUD.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -60,6 +61,11 @@ void ARPG_TutorialCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	if (PlayerHUD)
+	{
+		PlayerHUD->AddToViewport();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

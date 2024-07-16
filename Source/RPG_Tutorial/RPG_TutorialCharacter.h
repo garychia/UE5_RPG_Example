@@ -13,6 +13,8 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
+class UPlayerHUD;
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
@@ -47,6 +49,10 @@ class ARPG_TutorialCharacter : public ACharacter
 	/** Crouch Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
+
+	/** Player HUD Widget */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = HUD, meta = (AllowPrivateAccess = "true"))
+	UPlayerHUD* PlayerHUD;
 
 	/** Whether the character is crouched */
 	UPROPERTY(BlueprintReadOnly, Category = Variables, meta = (AllowPrivateAccess = "true"))
