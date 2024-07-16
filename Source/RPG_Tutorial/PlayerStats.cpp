@@ -2,6 +2,9 @@
 
 
 #include "PlayerStats.h"
+#include "RPG_TutorialCharacter.h"
+#include "PlayerHUD.h"
+
 
 // Sets default values for this component's properties
 UPlayerStats::UPlayerStats()
@@ -23,14 +26,29 @@ UPlayerStats::UPlayerStats()
 	Level = 0;
 }
 
+void UPlayerStats::OnHealthValuesChanged()
+{
+	if (PlayerHUD)
+	{
+		PlayerHUD->UpdateHealthBar(CurrentHealth / MaxHealth);
+	}
+}
+
+void UPlayerStats::OnStaminaValuesChanged()
+{
+	if (PlayerHUD)
+	{
+		PlayerHUD->UpdateStaminaBar(CurrentStamina / MaxStamina);
+	}
+}
 
 // Called when the game starts
 void UPlayerStats::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	OnHealthValuesChanged();
+	OnStaminaValuesChanged();
 }
 
 
@@ -46,18 +64,25 @@ void UPlayerStats::IncreaseMaxHealth(float Amount)
 {
 	check(Amount >= 0.f);
 	MaxHealth += Amount;
+	
+	OnHealthValuesChanged();
 }
 
 void UPlayerStats::IncreaseMaxStamina(float Amount)
 {
 	check(Amount >= 0.f);
 	MaxStamina += Amount;
+
+	OnStaminaValuesChanged();
 }
 
 bool UPlayerStats::GetDamaged(float Damage)
 {
 	check(Damage >= 0.f);
 	CurrentHealth = fmaxf(CurrentHealth - Damage, 0.f);
+
+	OnHealthValuesChanged();
+
 	return CurrentHealth == 0.f;
 }
 
@@ -65,12 +90,17 @@ bool UPlayerStats::GetDamaged(float Damage)
 void UPlayerStats::Heal(float Amount) {
 	check(Amount >= 0.f);
 	CurrentHealth = fminf(CurrentHealth + Amount, MaxHealth);
+
+	OnHealthValuesChanged();
 }
 
 bool UPlayerStats::DecreaseStamina(float Amount)
 {
 	check(Amount >= 0.f);
 	CurrentStamina = fmaxf(CurrentStamina - Amount, 0.f);
+	
+	OnStaminaValuesChanged();
+
 	return CurrentStamina == 0.f;
 }
 
@@ -78,4 +108,13 @@ void UPlayerStats::IncreaseStamina(float Amount)
 {
 	check(Amount >= 0.f);
 	CurrentStamina = fminf(CurrentStamina + Amount, MaxStamina);
+
+	OnStaminaValuesChanged();
+}
+
+void UPlayerStats::SetPlayerHUD(UPlayerHUD* HUD)
+{
+	PlayerHUD = HUD;
+	OnHealthValuesChanged();
+	OnStaminaValuesChanged();
 }

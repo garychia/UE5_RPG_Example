@@ -17,12 +17,16 @@ class RPG_TUTORIAL_API UPlayerHUD : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UCanvasPanel* CanvasPanel;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthProgressBar;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UProgressBar* StaminaProgressBar;
+
+	void UpdateHealthBar(float NewPercentage);
+
+	void UpdateStaminaBar(float NewPercentage);
 };

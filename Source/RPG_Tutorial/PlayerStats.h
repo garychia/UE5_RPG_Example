@@ -7,6 +7,8 @@
 #include "PlayerStats.generated.h"
 
 
+class UPlayerHUD;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_TUTORIAL_API UPlayerStats : public UActorComponent
 {
@@ -37,6 +39,15 @@ public:
 	// Sets default values for this component's properties
 	UPlayerStats();
 
+private:
+	UPlayerHUD* PlayerHUD;
+
+	// Called when health-related values have been changed
+	void OnHealthValuesChanged();
+
+	// Called when stamina-related values have been changed
+	void OnStaminaValuesChanged();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -62,4 +73,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
 	void IncreaseStamina(float Amount);
+
+	// Assigns the player's HUD to this PlayerStats
+	void SetPlayerHUD(UPlayerHUD* HUD);
 };

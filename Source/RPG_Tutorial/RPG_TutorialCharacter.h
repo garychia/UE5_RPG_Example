@@ -12,8 +12,8 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
-
 class UPlayerHUD;
+class UPlayerStats;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -52,11 +52,17 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	/** Player HUD Widget */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = HUD, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UPlayerHUD> PlayerHUDClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerStats, meta = (AllowPrivateAccess = "true"))
+	UPlayerStats* PlayerStats;
+
 	UPlayerHUD* PlayerHUD;
 
 	/** Whether the character is crouched */
 	UPROPERTY(BlueprintReadOnly, Category = Variables, meta = (AllowPrivateAccess = "true"))
 	bool IsCrouched;
+
 
 public:
 	ARPG_TutorialCharacter();
@@ -88,5 +94,7 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	UPlayerHUD* GetPlayerHUD() { return PlayerHUD; }
 };
 

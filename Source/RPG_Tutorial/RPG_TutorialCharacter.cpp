@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "PlayerHUD.h"
+#include "PlayerStats.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -54,7 +55,10 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
+	PlayerStats = CreateDefaultSubobject<UPlayerStats>(TEXT("PlayerStats"));
+
 	IsCrouched = false;
+	PlayerHUD = nullptr;
 }
 
 void ARPG_TutorialCharacter::BeginPlay()
@@ -62,8 +66,14 @@ void ARPG_TutorialCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
+	if (PlayerHUDClass)
+	{
+		PlayerHUD = CreateWidget<UPlayerHUD>(Cast<APlayerController>(GetController()), PlayerHUDClass);
+	}
+	
 	if (PlayerHUD)
 	{
+		PlayerStats->SetPlayerHUD(PlayerHUD);
 		PlayerHUD->AddToViewport();
 	}
 }
