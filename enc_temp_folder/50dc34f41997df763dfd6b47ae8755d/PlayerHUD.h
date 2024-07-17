@@ -30,9 +30,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HPTextBlock;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* StaminaTextBlock;
-
 	void UpdateHealthBar(float NewHealth, float NewMaxHealth);
 
 	void UpdateStaminaBar(float NewStamina, float NewMaxStamina);

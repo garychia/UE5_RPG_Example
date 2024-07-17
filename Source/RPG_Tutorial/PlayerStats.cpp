@@ -30,7 +30,7 @@ void UPlayerStats::OnHealthValuesChanged()
 {
 	if (PlayerHUD)
 	{
-		PlayerHUD->UpdateHealthBar(CurrentHealth / MaxHealth);
+		PlayerHUD->UpdateHealthBar(CurrentHealth, MaxHealth);
 	}
 }
 
@@ -38,7 +38,7 @@ void UPlayerStats::OnStaminaValuesChanged()
 {
 	if (PlayerHUD)
 	{
-		PlayerHUD->UpdateStaminaBar(CurrentStamina / MaxStamina);
+		PlayerHUD->UpdateStaminaBar(CurrentStamina, MaxStamina);
 	}
 }
 
