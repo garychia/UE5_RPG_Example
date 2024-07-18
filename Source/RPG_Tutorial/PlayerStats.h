@@ -52,13 +52,14 @@ private:
 	UPlayerHUD* PlayerHUD;
 
 	// Called when health-related values have been changed
-	void OnHealthValuesChanged();
+	void ReflectChangedHealthValues();
 
 	// Called when stamina-related values have been changed
-	void OnStaminaValuesChanged();
+	void ReflectChangedStaminaValues();
 
 	// Called when the player is damanged
-	void OnPlayerDamaged(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	UFUNCTION()
+	void ReflectDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 protected:
 	// Called when the game starts
@@ -85,6 +86,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
 	void IncreaseStamina(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = Stamina)
+	bool HasEnoughStamina(float AmountRequired) const { return CurrentStamina >= AmountRequired; }
 
 	// Assigns the player's HUD to this PlayerStats
 	void SetPlayerHUD(UPlayerHUD* HUD);

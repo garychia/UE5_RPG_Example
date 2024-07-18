@@ -26,7 +26,7 @@ UPlayerStats::UPlayerStats()
 	Level = 0;
 }
 
-void UPlayerStats::OnHealthValuesChanged()
+void UPlayerStats::ReflectChangedHealthValues()
 {
 	if (PlayerHUD)
 	{
@@ -34,7 +34,7 @@ void UPlayerStats::OnHealthValuesChanged()
 	}
 }
 
-void UPlayerStats::OnStaminaValuesChanged()
+void UPlayerStats::ReflectChangedStaminaValues()
 {
 	if (PlayerHUD)
 	{
@@ -42,7 +42,7 @@ void UPlayerStats::OnStaminaValuesChanged()
 	}
 }
 
-void UPlayerStats::OnPlayerDamaged(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+void UPlayerStats::ReflectDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	DecreaseHealth(Damage);
 }
@@ -52,8 +52,8 @@ void UPlayerStats::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnHealthValuesChanged();
-	OnStaminaValuesChanged();
+	ReflectChangedHealthValues();
+	ReflectChangedStaminaValues();
 }
 
 
@@ -70,7 +70,7 @@ void UPlayerStats::IncreaseMaxHealth(float Amount)
 	check(Amount >= 0.f);
 	MaxHealth += Amount;
 	
-	OnHealthValuesChanged();
+	ReflectChangedHealthValues();
 }
 
 void UPlayerStats::IncreaseMaxStamina(float Amount)
@@ -78,7 +78,7 @@ void UPlayerStats::IncreaseMaxStamina(float Amount)
 	check(Amount >= 0.f);
 	MaxStamina += Amount;
 
-	OnStaminaValuesChanged();
+	ReflectChangedStaminaValues();
 }
 
 void UPlayerStats::DecreaseHealth(float Damage)
@@ -86,7 +86,7 @@ void UPlayerStats::DecreaseHealth(float Damage)
 	check(Damage >= 0.f);
 	CurrentHealth = fmaxf(CurrentHealth - Damage, 0.f);
 
-	OnHealthValuesChanged();
+	ReflectChangedHealthValues();
 
 	if (CurrentHealth == 0.f)
 	{
@@ -99,7 +99,7 @@ void UPlayerStats::IncreaseHealth(float Amount) {
 	check(Amount >= 0.f);
 	CurrentHealth = fminf(CurrentHealth + Amount, MaxHealth);
 
-	OnHealthValuesChanged();
+	ReflectChangedHealthValues();
 }
 
 void UPlayerStats::DecreaseStamina(float Amount)
@@ -107,7 +107,7 @@ void UPlayerStats::DecreaseStamina(float Amount)
 	check(Amount >= 0.f);
 	CurrentStamina = fmaxf(CurrentStamina - Amount, 0.f);
 	
-	OnStaminaValuesChanged();
+	ReflectChangedStaminaValues();
 	
 	if (CurrentStamina == 0.f)
 	{
@@ -120,17 +120,17 @@ void UPlayerStats::IncreaseStamina(float Amount)
 	check(Amount >= 0.f);
 	CurrentStamina = fminf(CurrentStamina + Amount, MaxStamina);
 
-	OnStaminaValuesChanged();
+	ReflectChangedStaminaValues();
 }
 
 void UPlayerStats::SetPlayerHUD(UPlayerHUD* HUD)
 {
 	PlayerHUD = HUD;
-	OnHealthValuesChanged();
-	OnStaminaValuesChanged();
+	ReflectChangedHealthValues();
+	ReflectChangedStaminaValues();
 }
 
 void UPlayerStats::SetPlayer(AActor* Player)
 {
-	Player->OnTakeAnyDamage.AddDynamic(this, &UPlayerStats::OnPlayerDamaged);
+	Player->OnTakeAnyDamage.AddDynamic(this, &UPlayerStats::ReflectDamage);
 }

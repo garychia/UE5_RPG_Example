@@ -50,6 +50,10 @@ class ARPG_TutorialCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
 
+	/** Sprint Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SprintAction;
+
 	/** Player HUD Widget */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = HUD, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UPlayerHUD> PlayerHUDClass;
@@ -59,12 +63,32 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	UPlayerHUD* PlayerHUD;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Speed, meta = (AllowPrivateAccess = "true"))
+	float MaxSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, meta = (AllowPrivateAccess = "true"))
+	float CrouchedMaxSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, meta = (AllowPrivateAccess = "true"))
+	float SprintMaxSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float CameraBoomTargetArmLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float CrouchedCameraBoomTargetArmLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sprint, meta = (AllowPrivateAccess = "true"))
+	float SprintStaminaConsumption;
+
 	/** Whether the character is crouched */
 	UPROPERTY(BlueprintReadOnly, Category = Variables, meta = (AllowPrivateAccess = "true"))
-	bool IsCrouched;
+	bool bCrouched;
 
 	UFUNCTION(BlueprintCallable, Category = Gameplay)
 	void Die();
+
+	FTimerHandle SprintTimerHandle;
 
 public:
 	ARPG_TutorialCharacter();
@@ -80,6 +104,10 @@ protected:
 
 	/** Called for crouching input */
 	void Crouch(const FInputActionValue&);
+
+	void SprintStart(const FInputActionValue&);
+
+	void SprintEnd(const FInputActionValue&);
 
 	void Jump() override;
 			

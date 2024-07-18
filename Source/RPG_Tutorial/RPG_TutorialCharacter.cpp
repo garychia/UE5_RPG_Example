@@ -63,8 +63,16 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 
 	PlayerStats = CreateDefaultSubobject<UPlayerStats>(TEXT("PlayerStats"));
 
-	IsCrouched = false;
 	PlayerHUD = nullptr;
+
+	MaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	CrouchedMaxSpeed = 350.f;
+	SprintMaxSpeed = 750.f;
+
+	CameraBoomTargetArmLength = GetCameraBoom()->TargetArmLength;
+	CrouchedCameraBoomTargetArmLength = 550.f;
+
+	SprintStaminaConsumption = 1.f;
 }
 
 void ARPG_TutorialCharacter::BeginPlay()
@@ -115,6 +123,10 @@ void ARPG_TutorialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Crouching
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Crouch);
+
+		// Sprint
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::SprintStart);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARPG_TutorialCharacter::SprintEnd);
 	}
 	else
 	{
@@ -160,16 +172,48 @@ void ARPG_TutorialCharacter::Look(const FInputActionValue& Value)
 
 void ARPG_TutorialCharacter::Crouch(const FInputActionValue&)
 {
-	IsCrouched = !IsCrouched;
+	bCrouched = !bCrouched;
 	if (UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent())) {
-		MovementComponent->MaxWalkSpeed = IsCrouched ? 350 : 500;
+		MovementComponent->MaxWalkSpeed = bCrouched ? CrouchedMaxSpeed : MaxSpeed;
 	}
-	GetCameraBoom()->TargetArmLength = IsCrouched ? 550 : 400;
+	GetCameraBoom()->TargetArmLength = bCrouched ? CrouchedCameraBoomTargetArmLength : CameraBoomTargetArmLength;
+}
+
+void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)
+{
+	if (!PlayerStats->HasEnoughStamina(SprintStaminaConsumption))
+	{
+		return;
+	}
+
+	GetCharacterMovement()->MaxWalkSpeed = SprintMaxSpeed;
+	GetWorld()->GetTimerManager().SetTimer(
+		SprintTimerHandle,
+		[&]()
+		{
+			if (PlayerStats->HasEnoughStamina(SprintStaminaConsumption))
+			{
+				PlayerStats->DecreaseStamina(SprintStaminaConsumption);
+			}
+			else
+			{
+				SprintEnd(FInputActionValue());
+			}
+		},
+		0.5f,
+		true
+	);
+}
+
+void ARPG_TutorialCharacter::SprintEnd(const FInputActionValue&)
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
+	GetWorld()->GetTimerManager().ClearTimer(SprintTimerHandle);
 }
 
 void ARPG_TutorialCharacter::Jump()
 {
-	if (IsCrouched) {
+	if (bCrouched) {
 		Crouch(FInputActionValue());
 	}
 
