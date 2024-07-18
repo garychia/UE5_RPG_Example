@@ -94,6 +94,14 @@ void ARPG_TutorialCharacter::BeginPlay()
 	}
 }
 
+void ARPG_TutorialCharacter::Tick(float DeltaTime)
+{
+	if (!GetWorld()->GetTimerManager().IsTimerActive(SprintTimerHandle))
+	{
+		PlayerStats->IncreaseStamina(SprintStaminaConsumption * DeltaTime);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -200,7 +208,7 @@ void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)
 				SprintEnd(FInputActionValue());
 			}
 		},
-		0.5f,
+		0.25f,
 		true
 	);
 }

@@ -93,7 +93,6 @@ class ARPG_TutorialCharacter : public ACharacter
 public:
 	ARPG_TutorialCharacter();
 	
-
 protected:
 
 	/** Called for movement input */
@@ -118,6 +117,8 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+
+	void Tick(float DeltaTime) override;
 
 public:
 	/** Returns CameraBoom subobject **/
