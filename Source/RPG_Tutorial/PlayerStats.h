@@ -9,17 +9,26 @@
 
 class UPlayerHUD;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReachZeroHealthSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReachZeroStaminaSignature);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_TUTORIAL_API UPlayerStats : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = Health)
+	FReachZeroHealthSignature OnReachZeroHealth;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	float MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	float CurrentHealth;
+
+	UPROPERTY(BlueprintAssignable, Category = Stamina)
+	FReachZeroStaminaSignature OnReachZeroStamina;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
 	float MaxStamina;
@@ -48,6 +57,9 @@ private:
 	// Called when stamina-related values have been changed
 	void OnStaminaValuesChanged();
 
+	// Called when the player is damanged
+	void OnPlayerDamaged(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -60,20 +72,23 @@ public:
 	void IncreaseMaxHealth(float Amount);
 
 	UFUNCTION(BlueprintCallable, Category = Health)
-	bool GetDamaged(float Damage);
+	void DecreaseHealth(float Damage);
 
 	UFUNCTION(BlueprintCallable, Category = Health)
-	void Heal(float Amount);
+	void IncreaseHealth(float Amount);
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
 	void IncreaseMaxStamina(float Amount);
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
-	bool DecreaseStamina(float Amount);
+	void DecreaseStamina(float Amount);
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
 	void IncreaseStamina(float Amount);
 
 	// Assigns the player's HUD to this PlayerStats
 	void SetPlayerHUD(UPlayerHUD* HUD);
+
+	// Assigns the player to this PlayerStats.
+	void SetPlayer(AActor* Player);
 };

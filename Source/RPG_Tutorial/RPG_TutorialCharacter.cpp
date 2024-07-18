@@ -18,6 +18,12 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 //////////////////////////////////////////////////////////////////////////
 // ARPG_TutorialCharacter
 
+void ARPG_TutorialCharacter::Die()
+{
+	DisableInput(Cast<APlayerController>(GetController()));
+	GetMesh()->SetSimulatePhysics(true);
+}
+
 ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 {
 	// Set size for collision capsule
@@ -74,6 +80,8 @@ void ARPG_TutorialCharacter::BeginPlay()
 	if (PlayerHUD)
 	{
 		PlayerStats->SetPlayerHUD(PlayerHUD);
+		PlayerStats->SetPlayer(this);
+		PlayerStats->OnReachZeroHealth.AddDynamic(this, &ARPG_TutorialCharacter::Die);
 		PlayerHUD->AddToViewport();
 	}
 }

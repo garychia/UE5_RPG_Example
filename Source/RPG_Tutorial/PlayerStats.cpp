@@ -42,6 +42,11 @@ void UPlayerStats::OnStaminaValuesChanged()
 	}
 }
 
+void UPlayerStats::OnPlayerDamaged(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	DecreaseHealth(Damage);
+}
+
 // Called when the game starts
 void UPlayerStats::BeginPlay()
 {
@@ -76,32 +81,38 @@ void UPlayerStats::IncreaseMaxStamina(float Amount)
 	OnStaminaValuesChanged();
 }
 
-bool UPlayerStats::GetDamaged(float Damage)
+void UPlayerStats::DecreaseHealth(float Damage)
 {
 	check(Damage >= 0.f);
 	CurrentHealth = fmaxf(CurrentHealth - Damage, 0.f);
 
 	OnHealthValuesChanged();
 
-	return CurrentHealth == 0.f;
+	if (CurrentHealth == 0.f)
+	{
+		OnReachZeroHealth.Broadcast();
+	}
 }
 
 
-void UPlayerStats::Heal(float Amount) {
+void UPlayerStats::IncreaseHealth(float Amount) {
 	check(Amount >= 0.f);
 	CurrentHealth = fminf(CurrentHealth + Amount, MaxHealth);
 
 	OnHealthValuesChanged();
 }
 
-bool UPlayerStats::DecreaseStamina(float Amount)
+void UPlayerStats::DecreaseStamina(float Amount)
 {
 	check(Amount >= 0.f);
 	CurrentStamina = fmaxf(CurrentStamina - Amount, 0.f);
 	
 	OnStaminaValuesChanged();
-
-	return CurrentStamina == 0.f;
+	
+	if (CurrentStamina == 0.f)
+	{
+		OnReachZeroStamina.Broadcast();
+	}
 }
 
 void UPlayerStats::IncreaseStamina(float Amount)
@@ -117,4 +128,9 @@ void UPlayerStats::SetPlayerHUD(UPlayerHUD* HUD)
 	PlayerHUD = HUD;
 	OnHealthValuesChanged();
 	OnStaminaValuesChanged();
+}
+
+void UPlayerStats::SetPlayer(AActor* Player)
+{
+	Player->OnTakeAnyDamage.AddDynamic(this, &UPlayerStats::OnPlayerDamaged);
 }

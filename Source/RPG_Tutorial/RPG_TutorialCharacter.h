@@ -63,6 +63,8 @@ class ARPG_TutorialCharacter : public ACharacter
 	UPROPERTY(BlueprintReadOnly, Category = Variables, meta = (AllowPrivateAccess = "true"))
 	bool IsCrouched;
 
+	UFUNCTION(BlueprintCallable, Category = Gameplay)
+	void Die();
 
 public:
 	ARPG_TutorialCharacter();
@@ -94,7 +96,5 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-	UPlayerHUD* GetPlayerHUD() { return PlayerHUD; }
 };
 

@@ -5,18 +5,18 @@
 
 void UPlayerHUD::UpdateHealthBar(float NewHealth, float NewMaxHealth)
 {
-	if (HealthProgressBar)
+	if (HealthBar)
 	{
-		HealthProgressBar->SetPercent(NewHealth / NewMaxHealth);
+		HealthBar->SetPercent(NewHealth / NewMaxHealth);
 		HPTextBlock->SetText(FText::FromString(FString::SanitizeFloat(NewHealth)));
 	}
 }
 
 void UPlayerHUD::UpdateStaminaBar(float NewStamina, float NewMaxStamina)
 {
-	if (StaminaProgressBar)
+	if (StaminaBar)
 	{
-		StaminaProgressBar->SetPercent(NewStamina / NewMaxStamina);
+		StaminaBar->SetPercent(NewStamina / NewMaxStamina);
 		StaminaTextBlock->SetText(FText::FromString(FString::SanitizeFloat(NewStamina)));
 	}
 }

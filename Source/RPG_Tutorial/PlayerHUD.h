@@ -22,10 +22,10 @@ public:
 	UCanvasPanel* CanvasPanel;
 
 	UPROPERTY(meta = (BindWidget))
-	UProgressBar* HealthProgressBar;
+	UProgressBar* HealthBar;
 
 	UPROPERTY(meta = (BindWidget))
-	UProgressBar* StaminaProgressBar;
+	UProgressBar* StaminaBar;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HPTextBlock;
