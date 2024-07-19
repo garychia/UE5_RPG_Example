@@ -37,13 +37,13 @@ public:
 	float CurrentStamina;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = XP)
-	float MaxXP;
+	int32 MaxXP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = XP)
-	float CurrentXP;
+	int32 CurrentXP;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = XP)
-	int Level;
+	int32 Level;
 
 	// Sets default values for this component's properties
 	UPlayerStats();
@@ -56,10 +56,15 @@ private:
 
 	// Called when stamina-related values have been changed
 	void ReflectChangedStaminaValues();
+	
+	// Called when XP-related values have been changed
+	void ReflectChangedXPValues();
 
 	// Called when the player is damanged
 	UFUNCTION()
 	void ReflectDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	void IncreaseLevel(int32 Value);
 
 protected:
 	// Called when the game starts
@@ -89,6 +94,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
 	bool HasEnoughStamina(float AmountRequired) const { return CurrentStamina >= AmountRequired; }
+	
+	UFUNCTION(BlueprintCallable, Category = XP)
+	void IncreaseXP(int32 Amount);
 
 	// Assigns the player's HUD to this PlayerStats
 	void SetPlayerHUD(UPlayerHUD* HUD);

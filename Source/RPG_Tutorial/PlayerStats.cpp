@@ -42,9 +42,26 @@ void UPlayerStats::ReflectChangedStaminaValues()
 	}
 }
 
+void UPlayerStats::ReflectChangedXPValues()
+{
+	if (PlayerHUD)
+	{
+		PlayerHUD->UpdateXPBar(CurrentXP, MaxXP);
+		PlayerHUD->UpdateLevel(Level);
+	}
+}
+
 void UPlayerStats::ReflectDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	DecreaseHealth(Damage);
+}
+
+void UPlayerStats::IncreaseLevel(int32 Value)
+{
+	check(Value >= 0);
+
+	Level += Value;
+	MaxXP += 150 * Value;
 }
 
 // Called when the game starts
@@ -54,6 +71,7 @@ void UPlayerStats::BeginPlay()
 
 	ReflectChangedHealthValues();
 	ReflectChangedStaminaValues();
+	ReflectChangedXPValues();
 }
 
 
@@ -123,11 +141,26 @@ void UPlayerStats::IncreaseStamina(float Amount)
 	ReflectChangedStaminaValues();
 }
 
+void UPlayerStats::IncreaseXP(int32 Amount)
+{
+	check(Amount >= 0);
+	CurrentXP += Amount;
+
+	while (CurrentXP >= MaxXP)
+	{
+		CurrentXP -= MaxXP;
+		IncreaseLevel(1);
+	}
+
+	ReflectChangedXPValues();
+}
+
 void UPlayerStats::SetPlayerHUD(UPlayerHUD* HUD)
 {
 	PlayerHUD = HUD;
 	ReflectChangedHealthValues();
 	ReflectChangedStaminaValues();
+	ReflectChangedXPValues();
 }
 
 void UPlayerStats::SetPlayer(AActor* Player)

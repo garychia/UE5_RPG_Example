@@ -28,12 +28,25 @@ public:
 	UProgressBar* StaminaBar;
 
 	UPROPERTY(meta = (BindWidget))
+	UProgressBar* XPBar;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HPTextBlock;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* StaminaTextBlock;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LevelTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* XPTextBlock;
+
 	void UpdateHealthBar(float NewHealth, float NewMaxHealth);
 
 	void UpdateStaminaBar(float NewStamina, float NewMaxStamina);
+
+	void UpdateXPBar(int32 CurrentXP, int32 MaxXP);
+
+	void UpdateLevel(int32 Level);
 };
