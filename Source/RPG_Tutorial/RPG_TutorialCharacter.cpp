@@ -24,6 +24,11 @@ void ARPG_TutorialCharacter::Die()
 	GetMesh()->SetSimulatePhysics(true);
 }
 
+void ARPG_TutorialCharacter::TargetArmLengthTimelineProgress(float Amount)
+{
+	GetCameraBoom()->TargetArmLength = FMath::Lerp(CameraBoomTargetArmLength, CrouchedCameraBoomTargetArmLength, Amount);
+}
+
 ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 {
 	// Set size for collision capsule
@@ -92,6 +97,14 @@ void ARPG_TutorialCharacter::BeginPlay()
 		PlayerStats->OnReachZeroHealth.AddDynamic(this, &ARPG_TutorialCharacter::Die);
 		PlayerHUD->AddToViewport();
 	}
+
+	if (TargetArmLengthCurve)
+	{
+		FOnTimelineFloat OnTimelineFloat;
+		OnTimelineFloat.BindUFunction(this, FName("TargetArmLengthTimelineProgress"));
+		TargetArmLengthTimeline.AddInterpFloat(TargetArmLengthCurve, OnTimelineFloat);
+		TargetArmLengthTimeline.SetLooping(false);
+	}
 }
 
 void ARPG_TutorialCharacter::Tick(float DeltaTime)
@@ -100,6 +113,7 @@ void ARPG_TutorialCharacter::Tick(float DeltaTime)
 	{
 		PlayerStats->IncreaseStamina(SprintStaminaConsumption * DeltaTime);
 	}
+	TargetArmLengthTimeline.TickTimeline(DeltaTime);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -184,7 +198,15 @@ void ARPG_TutorialCharacter::Crouch(const FInputActionValue&)
 	if (UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent())) {
 		MovementComponent->MaxWalkSpeed = bCrouched ? CrouchedMaxSpeed : MaxSpeed;
 	}
-	GetCameraBoom()->TargetArmLength = bCrouched ? CrouchedCameraBoomTargetArmLength : CameraBoomTargetArmLength;
+	
+	if (bCrouched)
+	{
+		TargetArmLengthTimeline.PlayFromStart();
+	}
+	else
+	{
+		TargetArmLengthTimeline.ReverseFromEnd();
+	}
 }
 
 void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)

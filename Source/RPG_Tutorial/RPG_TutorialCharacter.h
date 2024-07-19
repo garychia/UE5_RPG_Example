@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Components/TimelineComponent.h"
 #include "RPG_TutorialCharacter.generated.h"
 
 class USpringArmComponent;
@@ -63,6 +64,11 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	UPlayerHUD* PlayerHUD;
 
+	FTimeline TargetArmLengthTimeline;
+
+	UPROPERTY(EditAnywhere, Category = Timeline)
+	UCurveFloat* TargetArmLengthCurve;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Speed, meta = (AllowPrivateAccess = "true"))
 	float MaxSpeed;
 
@@ -87,6 +93,9 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	UFUNCTION(BlueprintCallable, Category = Gameplay)
 	void Die();
+
+	UFUNCTION()
+	void TargetArmLengthTimelineProgress(float Amount);
 
 	FTimerHandle SprintTimerHandle;
 
