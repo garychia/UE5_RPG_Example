@@ -15,3 +15,7 @@ This is used to demonstrate how to create an RPG game using Unreal Engine 5. Thi
 ![](./readme_images/UInterface.png)
 ### Blend Space 1D
 ![](./readme_images/blend_space_1d.png)
+
+
+## Reference
+https://www.youtube.com/watch?v=FNTyIWkv5k8&list=PLiSlOaRBfgkcPAhYpGps16PT_9f28amXi&index=2
