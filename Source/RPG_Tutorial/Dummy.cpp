@@ -4,6 +4,7 @@
 #include "Dummy.h"
 #include "RPG_TutorialCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -54,15 +55,27 @@ void ADummy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ADummy::GetAssassinated_Implementation(FVector& Location, FRotator& Rotation) {
 	PlayAnimMontage(AssassinatedAnim);
 
-	FTimerHandle TimerHandle;
+	FTimerHandle DeathTimerHandle, GruntTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(
-		TimerHandle,
+		DeathTimerHandle,
 		[&]()
 		{ 
 			GetMesh()->SetSimulatePhysics(true);
 			AssassinationWidget->SetVisibility(false);
 		},
 		2.5f,
+		false
+	);
+	GetWorld()->GetTimerManager().SetTimer(
+		GruntTimerHandle,
+		[&]()
+		{ 
+			if (GruntSoundWave)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, GruntSoundWave, GetActorLocation());
+			}
+		},
+		1.5f,
 		false
 	);
 
