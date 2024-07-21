@@ -4,6 +4,7 @@
 #include "PlayerStats.h"
 #include "RPG_TutorialCharacter.h"
 #include "PlayerHUD.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties
@@ -62,6 +63,11 @@ void UPlayerStats::IncreaseLevel(int32 Value)
 
 	Level += Value;
 	MaxXP += 150 * Value;
+
+	if (LevelUpSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), LevelUpSound);
+	}
 }
 
 // Called when the game starts

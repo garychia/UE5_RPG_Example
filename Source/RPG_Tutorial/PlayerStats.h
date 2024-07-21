@@ -8,6 +8,7 @@
 
 
 class UPlayerHUD;
+class USoundBase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReachZeroHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReachZeroStaminaSignature);
@@ -44,6 +45,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = XP)
 	int32 Level;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio)
+	USoundBase* LevelUpSound;
 
 	// Sets default values for this component's properties
 	UPlayerStats();
