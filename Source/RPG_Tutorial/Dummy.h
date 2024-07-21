@@ -12,7 +12,7 @@
 #include "Dummy.generated.h"
 
 
-class USoundWave;
+class USoundBase;
 
 UCLASS(Blueprintable)
 class RPG_TUTORIAL_API ADummy : public ACharacter, public IAssassinatableInterface
@@ -33,7 +33,7 @@ public:
   	UAnimMontage* AssassinatedAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio)
-	USoundWave* GruntSoundWave;
+	USoundBase* GruntSoundWave;
 
 	// Sets default values for this character's properties
 	ADummy();
