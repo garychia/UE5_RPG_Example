@@ -94,6 +94,9 @@ class ARPG_TutorialCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = Gameplay)
 	void Die();
 
+	UFUNCTION(BlueprintCallable, Category = Sprint)
+	bool CanSprint();
+
 	UFUNCTION()
 	void TargetArmLengthTimelineProgress(float Amount);
 

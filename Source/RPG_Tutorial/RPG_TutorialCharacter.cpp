@@ -24,6 +24,11 @@ void ARPG_TutorialCharacter::Die()
 	GetMesh()->SetSimulatePhysics(true);
 }
 
+bool ARPG_TutorialCharacter::CanSprint()
+{
+	return PlayerStats->HasEnoughStamina(SprintStaminaConsumption) && GetVelocity().Size() != 0.f;
+}
+
 void ARPG_TutorialCharacter::TargetArmLengthTimelineProgress(float Amount)
 {
 	GetCameraBoom()->TargetArmLength = FMath::Lerp(CameraBoomTargetArmLength, CrouchedCameraBoomTargetArmLength, Amount);
@@ -211,7 +216,7 @@ void ARPG_TutorialCharacter::Crouch(const FInputActionValue&)
 
 void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)
 {
-	if (!PlayerStats->HasEnoughStamina(SprintStaminaConsumption))
+	if (!CanSprint())
 	{
 		return;
 	}
@@ -221,7 +226,7 @@ void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)
 		SprintTimerHandle,
 		[&]()
 		{
-			if (PlayerStats->HasEnoughStamina(SprintStaminaConsumption))
+			if (CanSprint())
 			{
 				PlayerStats->DecreaseStamina(SprintStaminaConsumption);
 			}
