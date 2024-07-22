@@ -10,11 +10,13 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UMotionWarpingComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class UPlayerHUD;
 class UPlayerStats;
+class UAnimMontage;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -55,12 +57,29 @@ class ARPG_TutorialCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SprintAction;
 
+	/** Assassination Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AssassinationAction;
+
+	/** Vault Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* VaultAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AssassinationMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* VaultMontage;
+
 	/** Player HUD Widget */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = HUD, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UPlayerHUD> PlayerHUDClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlayerStats, meta = (AllowPrivateAccess = "true"))
 	UPlayerStats* PlayerStats;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MotionWarping, meta = (AllowPrivateAccess = "true"))
+	UMotionWarpingComponent* MotionWarping;
 
 	UPlayerHUD* PlayerHUD;
 
@@ -91,16 +110,22 @@ class ARPG_TutorialCharacter : public ACharacter
 	UPROPERTY(BlueprintReadOnly, Category = Variables, meta = (AllowPrivateAccess = "true"))
 	bool bCrouched;
 
+	FTimerHandle SprintTimerHandle;
+
 	UFUNCTION(BlueprintCallable, Category = Gameplay)
 	void Die();
 
 	UFUNCTION(BlueprintCallable, Category = Sprint)
 	bool CanSprint();
 
+	UFUNCTION(BlueprintCallable, Category = Sprint)
+	bool FindVaultLocations(FVector& OutStartLocation, FVector& OutMiddleLocation, FVector& OutEndLocation);
+
 	UFUNCTION()
 	void TargetArmLengthTimelineProgress(float Amount);
 
-	FTimerHandle SprintTimerHandle;
+	UFUNCTION()
+	void FinalizeMontage(UAnimMontage* Montage, bool bInterrupted);
 
 public:
 	ARPG_TutorialCharacter();
@@ -120,6 +145,10 @@ protected:
 
 	void SprintEnd(const FInputActionValue&);
 
+	void Assassinate(const FInputActionValue&);
+
+	void Vault(const FInputActionValue&);
+	
 	void Jump() override;
 			
 

@@ -12,6 +12,10 @@
 #include "InputActionValue.h"
 #include "PlayerHUD.h"
 #include "PlayerStats.h"
+#include "MotionWarpingComponent.h"
+#include "Animation/AnimMontage.h"
+#include "AssassinatableInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -27,6 +31,74 @@ void ARPG_TutorialCharacter::Die()
 bool ARPG_TutorialCharacter::CanSprint()
 {
 	return PlayerStats->HasEnoughStamina(SprintStaminaConsumption) && GetVelocity().Size() != 0.f;
+}
+
+bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVector& OutMiddleLocation, FVector& OutEndLocation)
+{
+	FVector ActorLocation = GetActorLocation();
+	FVector Forward = GetActorForwardVector();
+	FVector TraceStart, TraceEnd;
+	FHitResult HitResult;
+	TArray<AActor*> ActorsToIgnore{ this };
+	bool bFound = false;
+
+	for (int32 i = 0; i < 3 && !bFound; i++)
+	{
+		TraceStart = ActorLocation + FVector(0, 0, 30 * i);
+		TraceEnd = TraceStart + Forward * 180;
+
+		bFound = UKismetSystemLibrary::SphereTraceSingle(
+			GetWorld(), TraceStart, TraceEnd, .5f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+			ActorsToIgnore, EDrawDebugTrace::Type::ForDuration, HitResult, true
+		);
+	}
+
+	if (!bFound)
+	{
+		return false;
+	}
+
+	FVector HitLocation = HitResult.Location;
+	bool bStartLocationFound = false, EndLocationFound = false;
+
+	for (int32 i = 0; i < 6; i++)
+	{
+		TraceStart = HitLocation + FVector(0, 0, 100) + Forward * 50 * i;
+		TraceEnd = TraceStart - FVector(0, 0, 100);
+
+		bFound = UKismetSystemLibrary::SphereTraceSingle(
+			GetWorld(), TraceStart, TraceEnd, 10.f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+			ActorsToIgnore, EDrawDebugTrace::Type::ForDuration, HitResult, true
+		);
+
+		if (bFound)
+		{
+			if (i == 0)
+			{
+				OutStartLocation = HitResult.Location;
+				bStartLocationFound = true;
+			}
+			OutMiddleLocation = HitResult.Location;
+		}
+		else
+		{
+			TraceStart = HitResult.TraceStart + Forward * 80;
+			TraceEnd = TraceStart - FVector(0, 0, 1000);
+			bFound = UKismetSystemLibrary::LineTraceSingle(
+				GetWorld(), TraceStart, TraceEnd, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore,
+				EDrawDebugTrace::Type::ForDuration, HitResult, true, FLinearColor::Blue, FLinearColor::Green
+			);
+
+			if (bFound)
+			{
+				OutEndLocation = HitResult.Location;
+				EndLocationFound = true;
+				break;
+			}
+		}
+	}
+
+	return bStartLocationFound && EndLocationFound;
 }
 
 void ARPG_TutorialCharacter::TargetArmLengthTimelineProgress(float Amount)
@@ -72,6 +144,8 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	PlayerStats = CreateDefaultSubobject<UPlayerStats>(TEXT("PlayerStats"));
+
+	MotionWarping = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
 
 	PlayerHUD = nullptr;
 
@@ -154,6 +228,12 @@ void ARPG_TutorialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		// Sprint
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::SprintStart);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARPG_TutorialCharacter::SprintEnd);
+
+		// Assassination
+		EnhancedInputComponent->BindAction(AssassinationAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Assassinate);
+	
+		// Vault
+		EnhancedInputComponent->BindAction(VaultAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Vault);
 	}
 	else
 	{
@@ -245,6 +325,75 @@ void ARPG_TutorialCharacter::SprintEnd(const FInputActionValue&)
 	GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
 	GetWorld()->GetTimerManager().ClearTimer(SprintTimerHandle);
 }
+
+void ARPG_TutorialCharacter::Assassinate(const FInputActionValue&)
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors);
+
+	AActor* ActorToAssassinate = nullptr;
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (Actor->Implements<UAssassinatableInterface>())
+		{
+			ActorToAssassinate = Actor;
+			break;
+		}
+	}
+
+	if (!ActorToAssassinate)
+	{
+		return;
+	}
+
+	FVector TargetLocation;
+	FRotator TargetRotation;
+
+	IAssassinatableInterface::Execute_GetAssassinated(ActorToAssassinate, TargetLocation, TargetRotation);
+
+	if (AssassinationMontage)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		AnimInstance->Montage_Play(AssassinationMontage);
+	}
+
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(FName(TEXT("AssassinationWarp")), TargetLocation, TargetRotation);
+}
+
+void ARPG_TutorialCharacter::Vault(const FInputActionValue&)
+{
+	FVector StartLocation, MiddleLocation, EndLocation;
+	
+	if (!FindVaultLocations(StartLocation, MiddleLocation, EndLocation))
+	{
+		return;
+	}
+
+	FRotator ActorRotation = GetActorRotation();
+
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+	SetActorEnableCollision(false);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(FName(TEXT("VaultStart")), StartLocation, ActorRotation);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(FName(TEXT("VaultMiddle")), MiddleLocation, ActorRotation);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation(FName(TEXT("VaultLand")), EndLocation, ActorRotation);
+	if (VaultMontage)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &ARPG_TutorialCharacter::FinalizeMontage);
+		AnimInstance->Montage_Play(VaultMontage);
+	}
+}
+
+void ARPG_TutorialCharacter::FinalizeMontage(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage == VaultMontage)
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		SetActorEnableCollision(true);
+	}
+}
+
 
 void ARPG_TutorialCharacter::Jump()
 {
