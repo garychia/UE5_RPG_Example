@@ -30,7 +30,10 @@ void ARPG_TutorialCharacter::Die()
 
 bool ARPG_TutorialCharacter::CanSprint()
 {
-	return PlayerStats->HasEnoughStamina(SprintStaminaConsumption) && GetVelocity().Size() != 0.f;
+	bool bIsWalking = GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Walking;
+	bool bHasEnoughStamina = PlayerStats->HasEnoughStamina(SprintStaminaConsumption);
+	float CurrentVelocity = GetVelocity().Size();
+	return bIsWalking && bHasEnoughStamina && CurrentVelocity != 0.f;
 }
 
 bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVector& OutMiddleLocation, FVector& OutEndLocation)
