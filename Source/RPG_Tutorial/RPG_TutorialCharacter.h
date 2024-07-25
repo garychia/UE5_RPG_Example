@@ -11,6 +11,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UMotionWarpingComponent;
+class UAttackSystemComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -32,6 +33,9 @@ class ARPG_TutorialCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+	UAttackSystemComponent* AttackSystemComponent;
 	
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -64,6 +68,10 @@ class ARPG_TutorialCharacter : public ACharacter
 	/** Vault Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* VaultAction;
+
+	/** Attack Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* AssassinationMontage;
@@ -148,6 +156,8 @@ protected:
 	void Assassinate(const FInputActionValue&);
 
 	void Vault(const FInputActionValue&);
+
+	void Attack(const FInputActionValue&);
 	
 	void Jump() override;
 			
@@ -166,5 +176,9 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	void PrepareAttackCombo();
+
+	void StopAttack();
 };
 

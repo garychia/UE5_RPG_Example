@@ -19,3 +19,5 @@ This is used to demonstrate how to create an RPG game using Unreal Engine 5. Thi
 
 ## Reference
 https://www.youtube.com/watch?v=FNTyIWkv5k8&list=PLiSlOaRBfgkcPAhYpGps16PT_9f28amXi&index=2
+
+"Sword" (https://skfb.ly/VsDs) by minghauLoh is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).

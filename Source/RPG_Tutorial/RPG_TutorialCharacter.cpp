@@ -16,6 +16,7 @@
 #include "Animation/AnimMontage.h"
 #include "AssassinatableInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "AttackSystemComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -143,6 +144,8 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	AttackSystemComponent = CreateDefaultSubobject<UAttackSystemComponent>(TEXT("AttackSystem"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
@@ -198,6 +201,16 @@ void ARPG_TutorialCharacter::Tick(float DeltaTime)
 	TargetArmLengthTimeline.TickTimeline(DeltaTime);
 }
 
+void ARPG_TutorialCharacter::PrepareAttackCombo()
+{
+	AttackSystemComponent->PrepareAttackCombo();
+}
+
+void ARPG_TutorialCharacter::StopAttack()
+{
+	AttackSystemComponent->StopAttack();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -237,6 +250,9 @@ void ARPG_TutorialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	
 		// Vault
 		EnhancedInputComponent->BindAction(VaultAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Vault);
+
+		// Attack	
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Attack);
 	}
 	else
 	{
@@ -386,6 +402,11 @@ void ARPG_TutorialCharacter::Vault(const FInputActionValue&)
 		AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &ARPG_TutorialCharacter::FinalizeMontage);
 		AnimInstance->Montage_Play(VaultMontage);
 	}
+}
+
+void ARPG_TutorialCharacter::Attack(const FInputActionValue&)
+{
+	AttackSystemComponent->Attack();
 }
 
 void ARPG_TutorialCharacter::FinalizeMontage(UAnimMontage* Montage, bool bInterrupted)
