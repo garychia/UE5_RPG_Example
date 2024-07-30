@@ -18,6 +18,7 @@ struct FInputActionValue;
 class UPlayerHUD;
 class UPlayerStats;
 class UAnimMontage;
+class UArrowComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -36,6 +37,15 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
 	UAttackSystemComponent* AttackSystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* SwordMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sword, meta = (AllowPrivateAccess = "true"))
+	UArrowComponent* SwordStartArrow;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sword, meta = (AllowPrivateAccess = "true"))
+	UArrowComponent* SwordEndArrow;
 	
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -119,6 +129,9 @@ class ARPG_TutorialCharacter : public ACharacter
 	bool bCrouched;
 
 	FTimerHandle SprintTimerHandle;
+
+	// A handle to the timer that controls the frequency of the sword trace
+	FTimerHandle SwordTraceTimerHandle;
 
 	UFUNCTION(BlueprintCallable, Category = Gameplay)
 	void Die();

@@ -17,6 +17,7 @@
 #include "AssassinatableInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "AttackSystemComponent.h"
+#include "Components/ArrowComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -146,6 +147,15 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 
 	AttackSystemComponent = CreateDefaultSubobject<UAttackSystemComponent>(TEXT("AttackSystem"));
 
+	// Sword
+	SwordMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordMeshComponent"));
+	SwordMeshComponent->SetupAttachment(GetMesh(), TEXT("Hand_R_Sword"));
+
+	SwordStartArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("SwordStartArrow"));
+	SwordEndArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("SwordEndArrow"));
+	SwordStartArrow->SetupAttachment(SwordMeshComponent);
+	SwordEndArrow->SetupAttachment(SwordMeshComponent);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
@@ -190,6 +200,24 @@ void ARPG_TutorialCharacter::BeginPlay()
 		TargetArmLengthTimeline.AddInterpFloat(TargetArmLengthCurve, OnTimelineFloat);
 		TargetArmLengthTimeline.SetLooping(false);
 	}
+
+	// Sword Trace
+	GetWorld()->GetTimerManager().SetTimer(
+		SwordTraceTimerHandle,
+		[&]()
+		{
+			FVector TraceStart = SwordStartArrow->GetComponentLocation();
+			FVector TraceEnd = SwordEndArrow->GetComponentLocation();
+			FHitResult HitResult;
+			bool bFound = UKismetSystemLibrary::SphereTraceSingle(
+				GetWorld(), TraceStart, TraceEnd, 12.f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+				TArray<AActor *>{ this }, EDrawDebugTrace::Type::ForDuration, HitResult, true,
+				FLinearColor::Red, FLinearColor::Green, 0.1f
+			);
+		},
+		0.1f,
+		true
+	);
 }
 
 void ARPG_TutorialCharacter::Tick(float DeltaTime)
@@ -309,7 +337,7 @@ void ARPG_TutorialCharacter::Crouch(const FInputActionValue&)
 	}
 	else
 	{
-		TargetArmLengthTimeline.ReverseFromEnd();
+		TargetArmLengthTimeline.Reverse();
 	}
 }
 
