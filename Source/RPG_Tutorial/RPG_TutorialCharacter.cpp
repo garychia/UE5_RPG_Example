@@ -32,20 +32,20 @@ void ARPG_TutorialCharacter::Die()
 
 bool ARPG_TutorialCharacter::CanSprint()
 {
-	bool bIsWalking = GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Walking;
-	bool bHasEnoughStamina = PlayerStats->HasEnoughStamina(SprintStaminaConsumption);
+	bool  bIsWalking = GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Walking;
+	bool  bHasEnoughStamina = PlayerStats->HasEnoughStamina(SprintStaminaConsumption);
 	float CurrentVelocity = GetVelocity().Size();
 	return bIsWalking && bHasEnoughStamina && CurrentVelocity != 0.f;
 }
 
 bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVector& OutMiddleLocation, FVector& OutEndLocation)
 {
-	FVector ActorLocation = GetActorLocation();
-	FVector Forward = GetActorForwardVector();
-	FVector TraceStart, TraceEnd;
-	FHitResult HitResult;
+	FVector			ActorLocation = GetActorLocation();
+	FVector			Forward = GetActorForwardVector();
+	FVector			TraceStart, TraceEnd;
+	FHitResult		HitResult;
 	TArray<AActor*> ActorsToIgnore{ this };
-	bool bFound = false;
+	bool			bFound = false;
 
 	for (int32 i = 0; i < 3 && !bFound; i++)
 	{
@@ -54,8 +54,7 @@ bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVect
 
 		bFound = UKismetSystemLibrary::SphereTraceSingle(
 			GetWorld(), TraceStart, TraceEnd, .5f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
-			ActorsToIgnore, EDrawDebugTrace::Type::ForDuration, HitResult, true
-		);
+			ActorsToIgnore, EDrawDebugTrace::Type::ForDuration, HitResult, true);
 	}
 
 	if (!bFound)
@@ -64,7 +63,7 @@ bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVect
 	}
 
 	FVector HitLocation = HitResult.Location;
-	bool bStartLocationFound = false, EndLocationFound = false;
+	bool	bStartLocationFound = false, EndLocationFound = false;
 
 	for (int32 i = 0; i < 6; i++)
 	{
@@ -73,8 +72,7 @@ bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVect
 
 		bFound = UKismetSystemLibrary::SphereTraceSingle(
 			GetWorld(), TraceStart, TraceEnd, 10.f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
-			ActorsToIgnore, EDrawDebugTrace::Type::ForDuration, HitResult, true
-		);
+			ActorsToIgnore, EDrawDebugTrace::Type::ForDuration, HitResult, true);
 
 		if (bFound)
 		{
@@ -91,8 +89,7 @@ bool ARPG_TutorialCharacter::FindVaultLocations(FVector& OutStartLocation, FVect
 			TraceEnd = TraceStart - FVector(0, 0, 1000);
 			bFound = UKismetSystemLibrary::LineTraceSingle(
 				GetWorld(), TraceStart, TraceEnd, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore,
-				EDrawDebugTrace::Type::ForDuration, HitResult, true, FLinearColor::Blue, FLinearColor::Green
-			);
+				EDrawDebugTrace::Type::ForDuration, HitResult, true, FLinearColor::Blue, FLinearColor::Green);
 
 			if (bFound)
 			{
@@ -115,14 +112,14 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->bOrientRotationToMovement = true;			 // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
@@ -137,13 +134,13 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = 400.0f;		// The camera follows at this distance behind the character
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false;								// Camera does not rotate relative to arm
 
 	AttackSystemComponent = CreateDefaultSubobject<UAttackSystemComponent>(TEXT("AttackSystem"));
 
@@ -153,10 +150,12 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 
 	SwordStartArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("SwordStartArrow"));
 	SwordEndArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("SwordEndArrow"));
+	StabKickArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("StabKickArrow"));
 	SwordStartArrow->SetupAttachment(SwordMeshComponent);
 	SwordEndArrow->SetupAttachment(SwordMeshComponent);
+	StabKickArrow->SetupAttachment(RootComponent);
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	PlayerStats = CreateDefaultSubobject<UPlayerStats>(TEXT("PlayerStats"));
@@ -177,14 +176,14 @@ ARPG_TutorialCharacter::ARPG_TutorialCharacter()
 
 void ARPG_TutorialCharacter::BeginPlay()
 {
-	// Call the base class  
+	// Call the base class
 	Super::BeginPlay();
 
 	if (PlayerHUDClass)
 	{
 		PlayerHUD = CreateWidget<UPlayerHUD>(Cast<APlayerController>(GetController()), PlayerHUDClass);
 	}
-	
+
 	if (PlayerHUD)
 	{
 		PlayerStats->SetPlayerHUD(PlayerHUD);
@@ -201,23 +200,7 @@ void ARPG_TutorialCharacter::BeginPlay()
 		TargetArmLengthTimeline.SetLooping(false);
 	}
 
-	// Sword Trace
-	GetWorld()->GetTimerManager().SetTimer(
-		SwordTraceTimerHandle,
-		[&]()
-		{
-			FVector TraceStart = SwordStartArrow->GetComponentLocation();
-			FVector TraceEnd = SwordEndArrow->GetComponentLocation();
-			FHitResult HitResult;
-			bool bFound = UKismetSystemLibrary::SphereTraceSingle(
-				GetWorld(), TraceStart, TraceEnd, 12.f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
-				TArray<AActor *>{ this }, EDrawDebugTrace::Type::ForDuration, HitResult, true,
-				FLinearColor::Red, FLinearColor::Green, 0.1f
-			);
-		},
-		0.1f,
-		true
-	);
+	AttackSystemComponent->AttachAttackArrows(SwordStartArrow, SwordEndArrow, StabKickArrow);
 }
 
 void ARPG_TutorialCharacter::Tick(float DeltaTime)
@@ -252,10 +235,11 @@ void ARPG_TutorialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-	
+
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -275,11 +259,11 @@ void ARPG_TutorialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Assassination
 		EnhancedInputComponent->BindAction(AssassinationAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Assassinate);
-	
+
 		// Vault
 		EnhancedInputComponent->BindAction(VaultAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Vault);
 
-		// Attack	
+		// Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ARPG_TutorialCharacter::Attack);
 	}
 	else
@@ -301,11 +285,11 @@ void ARPG_TutorialCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
+
+		// get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
+		// add movement
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
@@ -327,10 +311,11 @@ void ARPG_TutorialCharacter::Look(const FInputActionValue& Value)
 void ARPG_TutorialCharacter::Crouch(const FInputActionValue&)
 {
 	bCrouched = !bCrouched;
-	if (UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent())) {
+	if (UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent()))
+	{
 		MovementComponent->MaxWalkSpeed = bCrouched ? CrouchedMaxSpeed : MaxSpeed;
 	}
-	
+
 	if (bCrouched)
 	{
 		TargetArmLengthTimeline.PlayFromStart();
@@ -351,8 +336,7 @@ void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)
 	GetCharacterMovement()->MaxWalkSpeed = SprintMaxSpeed;
 	GetWorld()->GetTimerManager().SetTimer(
 		SprintTimerHandle,
-		[&]()
-		{
+		[&]() {
 			if (CanSprint())
 			{
 				PlayerStats->DecreaseStamina(SprintStaminaConsumption);
@@ -363,8 +347,7 @@ void ARPG_TutorialCharacter::SprintStart(const FInputActionValue&)
 			}
 		},
 		0.25f,
-		true
-	);
+		true);
 }
 
 void ARPG_TutorialCharacter::SprintEnd(const FInputActionValue&)
@@ -394,7 +377,7 @@ void ARPG_TutorialCharacter::Assassinate(const FInputActionValue&)
 		return;
 	}
 
-	FVector TargetLocation;
+	FVector	 TargetLocation;
 	FRotator TargetRotation;
 
 	IAssassinatableInterface::Execute_GetAssassinated(ActorToAssassinate, TargetLocation, TargetRotation);
@@ -411,7 +394,7 @@ void ARPG_TutorialCharacter::Assassinate(const FInputActionValue&)
 void ARPG_TutorialCharacter::Vault(const FInputActionValue&)
 {
 	FVector StartLocation, MiddleLocation, EndLocation;
-	
+
 	if (!FindVaultLocations(StartLocation, MiddleLocation, EndLocation))
 	{
 		return;
@@ -446,12 +429,27 @@ void ARPG_TutorialCharacter::FinalizeMontage(UAnimMontage* Montage, bool bInterr
 	}
 }
 
-
 void ARPG_TutorialCharacter::Jump()
 {
-	if (bCrouched) {
+	if (bCrouched)
+	{
 		Crouch(FInputActionValue());
 	}
 
 	ACharacter::Jump();
+}
+
+void ARPG_TutorialCharacter::EnableSword()
+{
+	AttackSystemComponent->StartSwordTrace();
+}
+
+void ARPG_TutorialCharacter::DisableSword()
+{
+	AttackSystemComponent->EndSwordTrace();
+}
+
+void ARPG_TutorialCharacter::StabOrKick()
+{
+	AttackSystemComponent->StartStabKickTrace();
 }

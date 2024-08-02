@@ -1,11 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerStats.h"
 #include "RPG_TutorialCharacter.h"
 #include "PlayerHUD.h"
 #include "Kismet/GameplayStatics.h"
-
 
 // Sets default values for this component's properties
 UPlayerStats::UPlayerStats()
@@ -80,7 +78,6 @@ void UPlayerStats::BeginPlay()
 	ReflectChangedXPValues();
 }
 
-
 // Called every frame
 void UPlayerStats::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -93,7 +90,7 @@ void UPlayerStats::IncreaseMaxHealth(float Amount)
 {
 	check(Amount >= 0.f);
 	MaxHealth += Amount;
-	
+
 	ReflectChangedHealthValues();
 }
 
@@ -118,8 +115,8 @@ void UPlayerStats::DecreaseHealth(float Damage)
 	}
 }
 
-
-void UPlayerStats::IncreaseHealth(float Amount) {
+void UPlayerStats::IncreaseHealth(float Amount)
+{
 	check(Amount >= 0.f);
 	CurrentHealth = fminf(CurrentHealth + Amount, MaxHealth);
 
@@ -130,9 +127,9 @@ void UPlayerStats::DecreaseStamina(float Amount)
 {
 	check(Amount >= 0.f);
 	CurrentStamina = fmaxf(CurrentStamina - Amount, 0.f);
-	
+
 	ReflectChangedStaminaValues();
-	
+
 	if (CurrentStamina == 0.f)
 	{
 		OnReachZeroStamina.Broadcast();

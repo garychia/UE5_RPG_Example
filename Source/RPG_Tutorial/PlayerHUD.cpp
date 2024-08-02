@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerHUD.h"
 
 void UPlayerHUD::UpdateHealthBar(float NewHealth, float NewMaxHealth)
@@ -23,7 +22,8 @@ void UPlayerHUD::UpdateStaminaBar(float NewStamina, float NewMaxStamina)
 
 void UPlayerHUD::UpdateXPBar(int32 CurrentXP, int32 MaxXP)
 {
-	if (XPBar) {
+	if (XPBar)
+	{
 		XPBar->SetPercent(float(CurrentXP) / MaxXP);
 		XPTextBlock->SetText(FText::FromString(FString::FromInt(CurrentXP) + TEXT("/") + FString::FromInt(MaxXP)));
 	}

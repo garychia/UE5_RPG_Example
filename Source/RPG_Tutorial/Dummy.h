@@ -11,7 +11,6 @@
 #include "Animation/AnimMontage.h"
 #include "Dummy.generated.h"
 
-
 class USoundBase;
 
 UCLASS(Blueprintable)
@@ -30,7 +29,10 @@ public:
 	USkeletalMeshComponent* AssassinationLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-  	UAnimMontage* AssassinatedAnim;
+	UAnimMontage* AssassinatedAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TArray<UAnimMontage*> HitAnimations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio)
 	USoundBase* GruntSoundWave;
@@ -42,18 +44,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float TakeDamage(float DamageAmount,
+		FDamageEvent const&		   DamageEvent,
+		AController*			   EventInstigator,
+		AActor*					   DamageCauser) override;
+
 	void GetAssassinated_Implementation(FVector& Location, FRotator& Rotation) override;
 
 	UFUNCTION()
 	void OnAssassinationAreaBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+
 	UFUNCTION()
 	void OnAssassinationAreaEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

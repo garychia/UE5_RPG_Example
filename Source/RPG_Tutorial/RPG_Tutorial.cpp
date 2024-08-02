@@ -3,5 +3,4 @@
 #include "RPG_Tutorial.h"
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, RPG_Tutorial, "RPG_Tutorial" );
- 
+IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, RPG_Tutorial, "RPG_Tutorial");

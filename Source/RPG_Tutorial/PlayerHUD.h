@@ -10,13 +10,13 @@
 #include "PlayerHUD.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class RPG_TUTORIAL_API UPlayerHUD : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(meta = (BindWidget))
 	UCanvasPanel* CanvasPanel;

@@ -7,12 +7,12 @@
 #include "AnimNotify_SwordComboNext.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class RPG_TUTORIAL_API UAnimNotify_SwordComboNext : public UAnimNotify
 {
 	GENERATED_BODY()
-	
+
 	void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

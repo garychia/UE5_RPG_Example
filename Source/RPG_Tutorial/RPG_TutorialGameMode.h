@@ -14,6 +14,3 @@ class ARPG_TutorialGameMode : public AGameModeBase
 public:
 	ARPG_TutorialGameMode();
 };
-
-
-

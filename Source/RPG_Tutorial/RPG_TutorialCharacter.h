@@ -22,7 +22,7 @@ class UArrowComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-UCLASS(config=Game)
+UCLASS(config = Game)
 class ARPG_TutorialCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -46,7 +46,10 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sword, meta = (AllowPrivateAccess = "true"))
 	UArrowComponent* SwordEndArrow;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sword, meta = (AllowPrivateAccess = "true"))
+	UArrowComponent* StabKickArrow;
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -130,9 +133,6 @@ class ARPG_TutorialCharacter : public ACharacter
 
 	FTimerHandle SprintTimerHandle;
 
-	// A handle to the timer that controls the frequency of the sword trace
-	FTimerHandle SwordTraceTimerHandle;
-
 	UFUNCTION(BlueprintCallable, Category = Gameplay)
 	void Die();
 
@@ -150,9 +150,8 @@ class ARPG_TutorialCharacter : public ACharacter
 
 public:
 	ARPG_TutorialCharacter();
-	
-protected:
 
+protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -171,14 +170,13 @@ protected:
 	void Vault(const FInputActionValue&);
 
 	void Attack(const FInputActionValue&);
-	
+
 	void Jump() override;
-			
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	// To add mapping context
 	virtual void BeginPlay();
 
@@ -193,5 +191,10 @@ public:
 	void PrepareAttackCombo();
 
 	void StopAttack();
-};
 
+	void EnableSword();
+
+	void DisableSword();
+
+	void StabOrKick();
+};

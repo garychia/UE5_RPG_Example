@@ -6,14 +6,13 @@
 #include "Components/ActorComponent.h"
 #include "PlayerStats.generated.h"
 
-
 class UPlayerHUD;
 class USoundBase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReachZeroHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReachZeroStaminaSignature);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_TUTORIAL_API UPlayerStats : public UActorComponent
 {
 	GENERATED_BODY()
@@ -42,7 +41,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = XP)
 	int32 CurrentXP;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = XP)
 	int32 Level;
 
@@ -60,7 +59,7 @@ private:
 
 	// Called when stamina-related values have been changed
 	void ReflectChangedStaminaValues();
-	
+
 	// Called when XP-related values have been changed
 	void ReflectChangedXPValues();
 
@@ -74,7 +73,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -98,7 +97,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Stamina)
 	bool HasEnoughStamina(float AmountRequired) const { return CurrentStamina >= AmountRequired; }
-	
+
 	UFUNCTION(BlueprintCallable, Category = XP)
 	void IncreaseXP(int32 Amount);
 

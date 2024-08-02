@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AnimNotify_ComboEnd.generated.h"
+#include "AnimNotify_StabKickTrace.generated.h"
 
 /**
  *
  */
 UCLASS()
-class RPG_TUTORIAL_API UAnimNotify_ComboEnd : public UAnimNotify
+class RPG_TUTORIAL_API UAnimNotify_StabKickTrace : public UAnimNotify
 {
 	GENERATED_BODY()
 

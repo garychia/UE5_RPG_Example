@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "AttackSystemComponent.h"
 #include "GameFramework/Character.h"
+#include "Components/ArrowComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 bool UAttackSystemComponent::StartAttack()
 {
@@ -34,8 +36,7 @@ void UAttackSystemComponent::PlayAnimation()
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(
 		TimerHandle,
-		[&]()
-		{
+		[&]() {
 			if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
 			{
 				UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
@@ -43,8 +44,15 @@ void UAttackSystemComponent::PlayAnimation()
 			}
 		},
 		0.1f,
-		false
-	);
+		false);
+}
+
+void UAttackSystemComponent::DamageActor(AActor* ActorToDamage)
+{
+	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		UGameplayStatics::ApplyDamage(ActorToDamage, 10.f, Character->GetController(), Character, UDamageType::StaticClass());
+	}
 }
 
 void UAttackSystemComponent::Attack()
@@ -85,8 +93,11 @@ UAttackSystemComponent::UAttackSystemComponent()
 
 	AttackIndex = 0;
 	bIsAttacking = false;
-}
 
+	SwordStartArrowReference = nullptr;
+	SwordEndArrowReference = nullptr;
+	StabKickArrowReference = nullptr;
+}
 
 // Called when the game starts
 void UAttackSystemComponent::BeginPlay()
@@ -94,9 +105,7 @@ void UAttackSystemComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
-
 
 // Called every frame
 void UAttackSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -106,3 +115,64 @@ void UAttackSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
+void UAttackSystemComponent::AttachAttackArrows(UArrowComponent* SwordStartArrow, UArrowComponent* SwordEndArrow, UArrowComponent* StabKickArrow)
+{
+	SwordStartArrowReference = SwordStartArrow;
+	SwordEndArrowReference = SwordEndArrow;
+	StabKickArrowReference = StabKickArrow;
+}
+
+void UAttackSystemComponent::StartSwordTrace()
+{
+	if (!SwordStartArrowReference || !SwordEndArrowReference)
+	{
+		return;
+	}
+
+	// Sword Trace
+	GetWorld()->GetTimerManager().SetTimer(
+		SwordTraceTimerHandle,
+		[&]() {
+			FVector	   TraceStart = SwordStartArrowReference->GetComponentLocation();
+			FVector	   TraceEnd = SwordEndArrowReference->GetComponentLocation();
+			FHitResult HitResult;
+			bool	   bFound = UKismetSystemLibrary::SphereTraceSingle(
+				  GetWorld(), TraceStart, TraceEnd, 12.f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+				  TArray<AActor*>{ GetOwner() }, EDrawDebugTrace::Type::ForDuration, HitResult, true,
+				  FLinearColor::Red, FLinearColor::Green, 0.2f);
+
+			if (bFound && HitResult.GetActor()->ActorHasTag(TEXT("Damageable")) && !DamagedActor.Contains(HitResult.GetActor()))
+			{
+				DamagedActor.Add(HitResult.GetActor());
+				DamageActor(HitResult.GetActor());
+			}
+		},
+		0.001f,
+		true);
+}
+
+void UAttackSystemComponent::EndSwordTrace()
+{
+	DamagedActor.Empty();
+	GetWorld()->GetTimerManager().ClearTimer(SwordTraceTimerHandle);
+}
+
+void UAttackSystemComponent::StartStabKickTrace()
+{
+	if (!StabKickArrowReference)
+	{
+		return;
+	}
+
+	FVector	   TraceStart = StabKickArrowReference->GetComponentLocation();
+	FHitResult HitResult;
+	bool	   bFound = UKismetSystemLibrary::SphereTraceSingle(
+		  GetWorld(), TraceStart, TraceStart, 25.f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+		  TArray<AActor*>{ GetOwner() }, EDrawDebugTrace::Type::ForDuration, HitResult, true,
+		  FLinearColor::Red, FLinearColor::Green, 0.2f);
+
+	if (bFound && HitResult.GetActor()->ActorHasTag(TEXT("Damageable")))
+	{
+		DamageActor(HitResult.GetActor());
+	}
+}
