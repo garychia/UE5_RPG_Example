@@ -8,6 +8,7 @@
 
 class UAnimMontage;
 class UArrowComponent;
+class UCameraShakeBase;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_TUTORIAL_API UAttackSystemComponent : public UActorComponent
@@ -16,6 +17,9 @@ class RPG_TUTORIAL_API UAttackSystemComponent : public UActorComponent
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage*> AttackMontages;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> SwordHitCameraShake;
 
 	// Actors that have been damaged.
 	TSet<AActor*> DamagedActor;

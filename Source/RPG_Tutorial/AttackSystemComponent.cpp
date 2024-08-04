@@ -52,6 +52,12 @@ void UAttackSystemComponent::DamageActor(AActor* ActorToDamage)
 	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
 		UGameplayStatics::ApplyDamage(ActorToDamage, 10.f, Character->GetController(), Character, UDamageType::StaticClass());
+		UGameplayStatics::PlayWorldCameraShake(GetWorld(), SwordHitCameraShake, ActorToDamage->GetActorLocation(), 0.f, 2000.f);
+		if (ACharacter* CharacterToDamage = Cast<ACharacter>(ActorToDamage))
+		{
+			FVector Force = Character->GetActorForwardVector() * 700.f;
+			CharacterToDamage->LaunchCharacter(Force, false, false);
+		}
 	}
 }
 
