@@ -5,6 +5,7 @@
 #include "Components/ArrowComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 bool UAttackSystemComponent::StartAttack()
 {
@@ -47,12 +48,24 @@ void UAttackSystemComponent::PlayAnimation()
 		false);
 }
 
-void UAttackSystemComponent::DamageActor(AActor* ActorToDamage)
+void UAttackSystemComponent::DamageActor(AActor* ActorToDamage, FVector HitLocation, FVector Normal)
 {
 	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
 		UGameplayStatics::ApplyDamage(ActorToDamage, 10.f, Character->GetController(), Character, UDamageType::StaticClass());
-		UGameplayStatics::PlayWorldCameraShake(GetWorld(), SwordHitCameraShake, ActorToDamage->GetActorLocation(), 0.f, 2000.f);
+		if (SwordHitCameraShake)
+		{
+			UGameplayStatics::PlayWorldCameraShake(GetWorld(), SwordHitCameraShake, ActorToDamage->GetActorLocation(), 0.f, 2000.f);
+		}
+		if (BloodParticleSystem)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodParticleSystem, HitLocation, UKismetMathLibrary::MakeRotFromXY(Normal, Normal), FVector(0.4f, 0.4f, 0.4f), true, EPSCPoolMethod::AutoRelease, true);
+		}
+
+		for (USoundBase* HitSound : SwordHitSounds)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, ActorToDamage->GetActorLocation());
+		}
 		if (ACharacter* CharacterToDamage = Cast<ACharacter>(ActorToDamage))
 		{
 			FVector Force = Character->GetActorForwardVector() * 700.f;
@@ -103,6 +116,8 @@ UAttackSystemComponent::UAttackSystemComponent()
 	SwordStartArrowReference = nullptr;
 	SwordEndArrowReference = nullptr;
 	StabKickArrowReference = nullptr;
+
+	BloodParticleSystem = nullptr;
 }
 
 // Called when the game starts
@@ -150,7 +165,7 @@ void UAttackSystemComponent::StartSwordTrace()
 			if (bFound && HitResult.GetActor()->ActorHasTag(TEXT("Damageable")) && !DamagedActor.Contains(HitResult.GetActor()))
 			{
 				DamagedActor.Add(HitResult.GetActor());
-				DamageActor(HitResult.GetActor());
+				DamageActor(HitResult.GetActor(), HitResult.Location, HitResult.Normal);
 			}
 		},
 		0.001f,
@@ -179,6 +194,6 @@ void UAttackSystemComponent::StartStabKickTrace()
 
 	if (bFound && HitResult.GetActor()->ActorHasTag(TEXT("Damageable")))
 	{
-		DamageActor(HitResult.GetActor());
+		DamageActor(HitResult.GetActor(), HitResult.Location, HitResult.Normal);
 	}
 }

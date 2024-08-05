@@ -18,8 +18,14 @@ class RPG_TUTORIAL_API UAttackSystemComponent : public UActorComponent
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage*> AttackMontages;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
+	TArray<USoundBase*> SwordHitSounds;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCameraShakeBase> SwordHitCameraShake;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Particle, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* BloodParticleSystem;
 
 	// Actors that have been damaged.
 	TSet<AActor*> DamagedActor;
@@ -45,7 +51,7 @@ class RPG_TUTORIAL_API UAttackSystemComponent : public UActorComponent
 
 	void PlayAnimation();
 
-	void DamageActor(AActor* ActorToDamage);
+	void DamageActor(AActor* ActorToDamage, FVector HitLocation, FVector Normal);
 
 public:
 	// Sets default values for this component's properties
