@@ -4,6 +4,8 @@
 #include "RPG_TutorialCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerStats.h"
+#include "PlayerHUD.h"
 
 // Sets default values
 ADummy::ADummy()
@@ -13,15 +15,21 @@ ADummy::ADummy()
 
 	// Assassination Components
 	AssassinationWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Assassination Widget"));
+	StatsWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Stats Widget"));
+	Stats = CreateDefaultSubobject<UPlayerStats>(TEXT("Stats"));
 	AssassinationArea = CreateDefaultSubobject<USphereComponent>(TEXT("Assassination Area"));
 	AssassinationLocation = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Assassination Location"));
 
 	AssassinationWidget->SetupAttachment(RootComponent);
+	StatsWidget->SetupAttachment(RootComponent);
 	AssassinationArea->SetupAttachment(RootComponent);
 	AssassinationLocation->SetupAttachment(RootComponent);
 
 	AssassinationArea->OnComponentBeginOverlap.AddDynamic(this, &ADummy::OnAssassinationAreaBeginOverlap);
 	AssassinationArea->OnComponentEndOverlap.AddDynamic(this, &ADummy::OnAssassinationAreaEndOverlap);
+
+	Stats->SetPlayer(this);
+	Stats->OnReachZeroHealth.AddDynamic(this, &ADummy::Die);
 }
 
 // Called when the game starts or when spawned
@@ -31,16 +39,18 @@ void ADummy::BeginPlay()
 
 	AssassinationWidget->SetVisibility(false);
 	AssassinationLocation->SetVisibility(false);
+
+	if (StatsClass)
+	{
+		StatsWidget->SetWidgetClass(StatsClass);
+		Stats->SetPlayerHUD(Cast<UPlayerHUD>(StatsWidget->GetWidget()));
+	}
 }
 
 // Called every frame
 void ADummy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	FVector CameraLocation = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
-	FVector WidgetLocation = AssassinationWidget->GetComponentLocation();
-	AssassinationWidget->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation));
 }
 
 // Called to bind functionality to input
@@ -58,6 +68,8 @@ float ADummy::TakeDamage(float DamageAmount,
 	{
 		PlayAnimMontage(HitAnimations[UKismetMathLibrary::RandomInteger(HitAnimations.Num())]);
 	}
+	Stats->DecreaseHealth(DamageAmount);
+
 	return DamageAmount;
 }
 
@@ -80,6 +92,7 @@ void ADummy::GetAssassinated_Implementation(FVector& Location, FRotator& Rotatio
 			if (GruntSoundWave)
 			{
 				UGameplayStatics::PlaySoundAtLocation(this, GruntSoundWave, GetActorLocation());
+				Stats->DecreaseHealth(Stats->CurrentHealth);
 			}
 		},
 		1.5f,
@@ -103,4 +116,9 @@ void ADummy::OnAssassinationAreaEndOverlap(UPrimitiveComponent* OverlappedComp, 
 	{
 		AssassinationWidget->SetVisibility(false);
 	}
+}
+
+void ADummy::Die()
+{
+	GetMesh()->SetSimulatePhysics(true);
 }

@@ -11,6 +11,7 @@
 #include "Animation/AnimMontage.h"
 #include "Dummy.generated.h"
 
+class UPlayerStats;
 class USoundBase;
 
 UCLASS(Blueprintable)
@@ -21,6 +22,15 @@ class RPG_TUTORIAL_API ADummy : public ACharacter, public IAssassinatableInterfa
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	UWidgetComponent* AssassinationWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	UWidgetComponent* StatsWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<UUserWidget> StatsClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+	UPlayerStats* Stats;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Interaction)
 	USphereComponent* AssassinationArea;
@@ -63,4 +73,8 @@ public:
 
 	UFUNCTION()
 	void OnAssassinationAreaEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+private:
+	UFUNCTION()
+	void Die();
 };
